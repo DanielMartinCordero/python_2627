@@ -55,7 +55,7 @@ def numerosNoValidosCuadrado(posicion, sudoku, sublistaSudoku): #recorremos el c
     
    return numerosNoValidos
 
-def escribirNumero(filaSudoku, i_elemento, numerosNoValidos):
+def obtenerCandidatos(numerosNoValidos):
     filaLimpia= []
     for subLista in numerosNoValidos:
         for elemento in subLista:
@@ -68,6 +68,9 @@ def escribirNumero(filaSudoku, i_elemento, numerosNoValidos):
         if num not in filaLimpia:
             candidatos.append(num)
     print("Candidatos encontrados: "+str(candidatos))
+    return candidatos
+
+def escribirNumero(filaSudoku, i_elemento, candidatos):
     if len(candidatos) == 1:
         filaSudoku[i_elemento] = candidatos[0]
         print("Número resuelto: "+str(filaSudoku))
@@ -78,11 +81,11 @@ def resolverSudoku(sudoku):
    cambios = True #Si en la última iteración devuelve True, significa que hubo cambios y se debe revisar nuevamente el sudoku
    while cambios:
     cambios = False
+    candidatosPorCasilla = {}
     for i_lista in range(len(sudoku)):
         print("--Revisando fila: "+str(i_lista))
         for i_elemento in range(len(sudoku[i_lista])):
             print("--Revisando elemento: "+str(i_elemento))
-            filaResuelta = sudoku[i_lista]
             if sudoku[i_lista][i_elemento] == 0:
                 numerosNoValidos = []
                 print("Cero encontrado posición "+str(i_elemento))
@@ -93,7 +96,14 @@ def resolverSudoku(sudoku):
                 
                 numerosNoValidos.append(numerosNoValidosCuadrado(i_elemento, sudoku, i_lista))
                 print("Números no válidos: "+str(numerosNoValidos))
-                resuelto = escribirNumero(sudoku[i_lista], i_elemento, numerosNoValidos)
+                candidatosPorCasilla[(i_lista, i_elemento)] = set(obtenerCandidatos(numerosNoValidos))
+
+    for i_lista in range(len(sudoku)):
+        for i_elemento in range(len(sudoku[i_lista])):
+            posicion = (i_lista, i_elemento)
+            if posicion in candidatosPorCasilla:
+                candidatos = list(candidatosPorCasilla[posicion])
+                resuelto = escribirNumero(sudoku[i_lista], i_elemento, candidatos)
                 if resuelto:
                     cambios = True
    print("Sudoku resuelto: "+str(sudoku))
